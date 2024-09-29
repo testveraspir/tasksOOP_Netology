@@ -121,3 +121,80 @@ class Reviewer(Mentor):
                 student.grades[course] = [grade]
         else:
             return 'Ошибка'
+
+
+def get_average_grade_students_for_course(list_students: list, course: str) -> str:
+    """
+    Подсчёт средней оценки за домашние задания по всем студентам в рамках конкретного курса
+    :param list_students: список студентов
+    :param course: название курса
+    :return: сообщение о результат
+    """
+
+    if not isinstance(course, str):
+        return "Некорректное название курса."
+    total = []
+    for student in list_students:
+        if not isinstance(student, Student):
+            return "Некорректный список студентов."
+        if course in student.grades:
+            total.extend(student.grades[course])
+    if len(total) == 0:
+        return "Или такого курса нет, или по данному курсу ещё нет оценок."
+    average_grade = round(sum(total) / len(total), 1)
+    return f"Средняя оценка за домашние задания всех студентов по курсу {course}: {average_grade}"
+
+
+def get_average_grade_lecturer_for_course(list_lecturers: list, course: str) -> str:
+    """
+    Подсчёт средней оценки за лекции всех лекторов в рамках курса
+    :param list_lecturers: список лекторов
+    :param course: название курса
+    :return: сообщение о результате
+    """
+
+    if not isinstance(course, str):
+        return "Некорректное название курса."
+    total = []
+    for lecturer in list_lecturers:
+        if not isinstance(lecturer, Lecturer):
+            return "Некорректный список лекторов."
+        if course in lecturer.courses_rating:
+            total.extend(lecturer.courses_rating[course])
+    if len(total) == 0:
+        return "Или такого курса нет, или по данному курсу ещё нет оценок."
+    average_grade = round(sum(total) / len(total), 1)
+    return f"Средняя оценка за лекции всех лекторов по курсу {course}: {average_grade}"
+
+
+student_1 = Student("Иван", "Иванов", "м")
+student_2 = Student("Мария", "Петрова", "ж")
+student_1.courses_in_progress = ["информатика", "химия", "физика"]
+student_2.courses_in_progress = ["информатика", "химия", "физика"]
+student_1.finished_courses = ["математика", "биология"]
+student_2.finished_courses = ["математика", "биология"]
+
+# поскольку reviewer может поставить оценку только за текущие курсы, то оценку за завершённые пропишем вручную
+student_1.grades = {"математика": [4, 3, 7], "биология": [6, 8, 8]}
+student_2.grades = {"математика": [3, 3, 5], "биология": [10, 9, 8]}
+
+lector_1 = Lecturer("Андрей", "Павлов")
+lector_2 = Lecturer("Павел", "Сорокин")
+lector_1.courses_attached = ["математика", "информатика", "биология"]
+lector_2.courses_attached = ["химия", "физика", "биология"]
+
+student_1.put_rating(lector_1, "математика", 6)
+student_2.put_rating(lector_1, "математика", 6)
+student_2.put_rating(lector_1, "биология", 10)
+student_1.put_rating(lector_2, "биология", 8)
+student_2.put_rating(lector_2, "биология", 9)
+
+reviewer_1 = Reviewer("Анна", "Смиронова")
+reviewer_2 = Reviewer("Сергей", "Степанов")
+reviewer_1.courses_attached = ["математика", "информатика"]
+reviewer_2.courses_attached = ["химия", "физика", "биология"]
+reviewer_1.rate_hw(student_1, "информатика", 5)
+reviewer_1.rate_hw(student_1, "информатика", 6)
+reviewer_1.rate_hw(student_2, "информатика", 9)
+reviewer_2.rate_hw(student_2, "химия", 8)
+reviewer_2.rate_hw(student_2, "физика", 8)
