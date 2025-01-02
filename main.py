@@ -9,13 +9,15 @@ class Student:
         self.grades = {}
 
     def get_average_grade(self):
-        if len(self.grades) == 0:
-            return 0
-        list_grades = []
-        for value in self.grades.values():
-            for grade in value:
-                list_grades.append(grade)
-        return round(sum(list_grades) / len(list_grades), 1)
+        # if len(self.grades) == 0:
+        #     return 0
+        # list_grades = []
+        # for value in self.grades.values():
+        #     for grade in value:
+        #         list_grades.append(grade)
+        # return round(sum(list_grades) / len(list_grades), 1)
+        all_grades = [grade for grades in self.grades.values() for grade in grades]
+        return round(sum(all_grades) / len(all_grades), 1) if all_grades else 0
 
     def __str__(self):
         # проверка наличия оценок
@@ -48,14 +50,20 @@ class Student:
         return self.get_average_grade() < other.get_average_grade()
 
     def put_rating(self, lector, course, grade):
-        if isinstance(lector, Lecturer) and course in self.finished_courses \
-                and course in lector.courses_attached and 1 <= grade <= 10:
-            if course in lector.courses_rating:
-                lector.courses_rating[course] += [grade]
+        if isinstance(lector, Lecturer):
+            if course in self.finished_courses and course in lector.courses_attached:
+                if 1 <= grade <= 10:
+                    if course in lector.courses_rating:
+                        lector.courses_rating[course] += [grade]
+                    else:
+                        lector.courses_rating[course] = [grade]
+                else:
+                    print("Оценка должна быть в диапазоне от 1 до 10.")
             else:
-                lector.courses_rating[course] = [grade]
+                print(f"Ошибка: {course} не найден среди завершённых курсов студента"
+                      f" или не прикреплен к лектору.")
         else:
-            return 'Ошибка'
+            print("Ошибка: Неверный тип лектора.")
 
 
 class Mentor:
